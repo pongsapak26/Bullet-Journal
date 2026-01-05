@@ -2,9 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { createSession, deleteSession } from "@/lib/session";
-import crypto from "crypto";
-
-const TOKEN_EXPIRY_HOURS = 24;
+import { createClient } from "@/lib/supabase/server";
 
 export async function sendMagicLink(formData: FormData) {
   const email = formData.get("email") as string;
@@ -14,37 +12,23 @@ export async function sendMagicLink(formData: FormData) {
   }
 
   try {
-    // ลบ token เก่าออก
-    await prisma.magicToken.deleteMany({
-      where: { email },
-    });
+    const supabase = await createClient();
 
-    // สร้าง token ใหม่
-    const token = crypto.randomBytes(32).toString("hex");
-    const expiresAt = new Date(
-      Date.now() + TOKEN_EXPIRY_HOURS * 60 * 60 * 1000
-    );
-
-    await prisma.magicToken.create({
-      data: {
-        email,
-        token,
-        expiresAt,
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
       },
     });
 
-    // ในการ production ให้ส่ง email จริง
-    const magicLink = `${
-      process.env.NEXT_PUBLIC_APP_URL
-    }/verify?token=${token}&email=${encodeURIComponent(email)}`;
-    console.log("Magic Link:", magicLink);
+    if (error) {
+      console.error("Supabase auth error:", error);
+      return { error: error.message };
+    }
 
-    // TODO: ส่ง email ด้วย Resend หรือ SendGrid
     return {
       success: true,
       message: "Magic link sent to your email",
-      // dev only - ลบออกในการ production
-      debugLink: process.env.NODE_ENV === "development" ? magicLink : undefined,
     };
   } catch (error) {
     console.error("Error sending magic link:", error);
