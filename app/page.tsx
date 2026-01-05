@@ -5,11 +5,7 @@ import { useState } from "react";
 import { Header } from "./components/Header";
 import { EmailInput } from "./components/EmailInput";
 import { SubmitButton } from "./components/SubmitButton";
-import {
-  SuccessMessage,
-  ErrorMessage,
-  DebugLink,
-} from "./components/MessageBox";
+import { SuccessMessage, ErrorMessage } from "./components/MessageBox";
 
 export default function Home() {
   const [email, setEmail] = useState("");
@@ -17,7 +13,6 @@ export default function Home() {
     loading?: boolean;
     success?: boolean;
     error?: string;
-    debugLink?: string;
   }>({});
 
   async function handleSubmit(formData: FormData) {
@@ -27,7 +22,6 @@ export default function Home() {
       loading: false,
       success: result.success,
       error: result.error,
-      debugLink: result.debugLink,
     });
   }
 
@@ -60,7 +54,6 @@ export default function Home() {
           {/* Messages */}
           {state.success && <SuccessMessage />}
           {state.error && <ErrorMessage message={state.error} />}
-          {state.debugLink && <DebugLink debugLink={state.debugLink} />}
         </div>
 
         {/* Footer Info */}
