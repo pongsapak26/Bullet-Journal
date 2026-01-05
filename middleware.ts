@@ -39,11 +39,12 @@ export const config = {
     /*
      * Match all request paths except:
      * - api routes
+     * - auth routes (callback)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - public files (public folder)
      */
-    "/((?!api|_next/static|_next/image|favicon.ico|.*\\..*|_next).*)",
+    "/((?!api|auth|_next/static|_next/image|favicon.ico|.*\\..*|_next).*)",
   ],
 };
