@@ -15,7 +15,7 @@ import { getEntries } from "@/app/actions/entries";
 interface Entry {
   id: string;
   title: string;
-  month: number;
+  month: number | null;
 }
 
 const MONTHS_TH = [
@@ -68,7 +68,7 @@ export default function Dashboard() {
       if (result.entries) {
         setEntries(
           result.entries.map(
-            (e: { id: string; title: string; month: number }) => ({
+            (e: { id: string; title: string; month: number | null }) => ({
               id: e.id,
               title: e.title,
               month: e.month,
