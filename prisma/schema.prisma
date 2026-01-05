@@ -1,0 +1,102 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider  = "postgresql"
+    url       = env("DATABASE_URL")
+    directUrl = env("DIRECT_URL")
+}
+
+// User model - สำหรับการสมัครสมาชิก Magic Link
+model User {
+    id        String    @id @default(cuid())
+    email     String    @unique
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    deletedAt DateTime? // Soft delete
+
+    // Relation to entries
+    entries Entry[]
+
+    // Relation to shared entries (entries shared with this user)
+    sharedEntries SharedEntry[]
+
+    @@map("users")
+}
+
+// Entry model - สำหรับ Bullet Journal entries
+model Entry {
+    id     String @id @default(cuid())
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    // Bullet Journal fields
+    title       String // หัวข้อ
+    description String @db.Text // รายละเอียด
+    status      String // สถานะ (todo, inProgress, done, cancelled)
+
+    // Date fields - optional (สามารถกรอกแค่เดือน ปี หรือ วัน เดือน ปี)
+    day   Int? // วัน (1-31, optional)
+    month Int? // เดือน (1-12, optional)
+    year  Int  @default(dbgenerated("EXTRACT(YEAR FROM CURRENT_TIMESTAMP)::integer")) // ปี (default ปีปัจจุบัน)
+
+    // Relation to images
+    images Image[]
+
+    createdAt     DateTime      @default(now())
+    updatedAt     DateTime      @updatedAt
+    deletedAt     DateTime? // Soft delete
+    sharedEntries SharedEntry[]
+
+    @@index([userId])
+    @@map("entries")
+}
+
+// SharedEntry model - สำหรับแชร์ Entry ให้ user คนอื่นดู
+model SharedEntry {
+    id      String @id @default(cuid())
+    entryId String
+    entry   Entry  @relation(fields: [entryId], references: [id], onDelete: Cascade)
+
+    sharedWithUserId String
+    sharedWithUser   User   @relation(fields: [sharedWithUserId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    deletedAt DateTime? // Soft delete
+
+    // ต้องให้ user คนเดียวไม่สามารถแชร์ entry เดียวกันได้สองครั้ง
+    @@unique([entryId, sharedWithUserId])
+    @@index([sharedWithUserId])
+    @@map("shared_entries")
+}
+
+// Image model - สำหรับเก็บรูปภาพ Base64 ของ Entry
+model Image {
+    id      String @id @default(cuid())
+    entryId String
+    entry   Entry  @relation(fields: [entryId], references: [id], onDelete: Cascade)
+
+    // Image data
+    imageBase64 String  @db.Text // รูปภาพ Base64
+    filename    String? // ชื่อไฟล์ (optional)
+
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    deletedAt DateTime? // Soft delete
+
+    @@index([entryId])
+    @@map("images")
+}
+
+// Magic Link token model - สำหรับ Magic Link verification
+model MagicToken {
+    id        String   @id @default(cuid())
+    email     String   @unique
+    token     String   @unique
+    expiresAt DateTime // Token หมดอายุเมื่อไร
+    createdAt DateTime @default(now())
+
+    @@map("magic_tokens")
+}
