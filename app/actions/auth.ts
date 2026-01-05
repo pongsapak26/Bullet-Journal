@@ -1,7 +1,6 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
-import { createSession, deleteSession } from "@/lib/session";
+import { deleteSession } from "@/lib/session";
 import { createClient } from "@/lib/supabase/server";
 
 export async function sendMagicLink(formData: FormData) {
@@ -36,49 +35,9 @@ export async function sendMagicLink(formData: FormData) {
   }
 }
 
-export async function verifyMagicLink(token: string, email: string) {
-  try {
-    const magicToken = await prisma.magicToken.findFirst({
-      where: {
-        token,
-        email,
-        expiresAt: {
-          gt: new Date(),
-        },
-      },
-    });
-
-    if (!magicToken) {
-      return { error: "Invalid or expired token" };
-    }
-
-    // สร้างหรืออัปเดต user
-    const user = await prisma.user.upsert({
-      where: { email },
-      update: {},
-      create: { email },
-    });
-
-    // ลบ token ที่ใช้ไปแล้ว
-    await prisma.magicToken.delete({
-      where: { id: magicToken.id },
-    });
-
-    // สร้าง session cookie
-    await createSession(user.id, user.email);
-
-    return {
-      success: true,
-      userId: user.id,
-      email: user.email,
-    };
-  } catch (error) {
-    console.error("Error verifying magic link:", error);
-    return { error: "Failed to verify token" };
-  }
-}
-
 export async function logout() {
+  const supabase = await createClient();
+  await supabase.auth.signOut();
   await deleteSession();
   return { success: true };
 }
