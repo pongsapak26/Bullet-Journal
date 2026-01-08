@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import AOS from "aos";
+import "aos/dist/aos.css";
 import {
   TodoIcon,
   InProgressIcon,
@@ -50,6 +52,15 @@ export function EntryCard({ entry }: EntryCardProps) {
   const [isHovering, setIsHovering] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Initialize AOS
+  useEffect(() => {
+    AOS.init({
+      duration: 600,
+      once: true,
+      offset: 50,
+    });
+  }, []);
+
   // Auto-rotate images when hovering
   useEffect(() => {
     if (isHovering && hasMultipleImages) {
@@ -73,6 +84,7 @@ export function EntryCard({ entry }: EntryCardProps) {
       className="group relative aspect-square rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105"
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
+      data-aos="fade-up"
     >
       {/* Background */}
       {hasImage ? (
