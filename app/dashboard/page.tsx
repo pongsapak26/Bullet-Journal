@@ -86,28 +86,6 @@ export default function Dashboard() {
           </h1>
           <div className="flex items-center gap-2 sm:gap-4">
             {/* Mode Toggle */}
-            <div className="flex gap-2 bg-cream-200 rounded-full p-1">
-              <button
-                onClick={() => setViewMode("month")}
-                className={`px-3 sm:px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
-                  viewMode === "month"
-                    ? "bg-brown-800 text-cream-100"
-                    : "text-brown-600 hover:text-brown-800"
-                }`}
-              >
-                เดือน
-              </button>
-              <button
-                onClick={() => setViewMode("list")}
-                className={`px-3 sm:px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
-                  viewMode === "list"
-                    ? "bg-brown-800 text-cream-100"
-                    : "text-brown-600 hover:text-brown-800"
-                }`}
-              >
-                รายการ
-              </button>
-            </div>
 
             <Link
               href="/dashboard/stats"
@@ -156,7 +134,28 @@ export default function Dashboard() {
             <ChevronRightIcon />
           </button>
         </div>
-
+        <div className="flex gap-2 bg-cream-200 rounded-full p-1">
+          <button
+            onClick={() => setViewMode("month")}
+            className={`px-3 sm:px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+              viewMode === "month"
+                ? "bg-brown-800 text-cream-100"
+                : "text-brown-600 hover:text-brown-800"
+            }`}
+          >
+            เดือน
+          </button>
+          <button
+            onClick={() => setViewMode("list")}
+            className={`px-3 sm:px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+              viewMode === "list"
+                ? "bg-brown-800 text-cream-100"
+                : "text-brown-600 hover:text-brown-800"
+            }`}
+          >
+            รายการ
+          </button>
+        </div>
         {/* Quick jump to current year */}
         {!isCurrentYear && (
           <div className="text-center mt-4" data-aos="fade-up">

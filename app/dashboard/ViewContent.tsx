@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import Link from "next/link";
 import AOS from "aos";
 import "aos/dist/aos.css";
@@ -61,10 +61,6 @@ export function ViewContent({
   isCurrentYear,
   currentMonth,
 }: ViewContentProps) {
-  const [hoveredMonth, setHoveredMonth] = useState<number | null>(null);
-  const [displayTitle, setDisplayTitle] = useState<string>("");
-  const titleIndexRef = useRef(0);
-
   // Initialize AOS
   useEffect(() => {
     AOS.init({
@@ -91,27 +87,6 @@ export function ViewContent({
     });
   }, [entries]);
 
-  // Rotate title every 5 seconds when hovering
-  useEffect(() => {
-    if (hoveredMonth === null) return;
-
-    const monthEntries = getMonthEntries(hoveredMonth);
-    if (monthEntries.length === 0) return;
-
-    titleIndexRef.current = Math.floor(Math.random() * monthEntries.length);
-    setDisplayTitle(monthEntries[titleIndexRef.current].title);
-
-    const interval = setInterval(() => {
-      titleIndexRef.current = (titleIndexRef.current + 1) % monthEntries.length;
-      setDisplayTitle(monthEntries[titleIndexRef.current].title);
-    }, 5000);
-
-    return () => {
-      clearInterval(interval);
-      setDisplayTitle("");
-    };
-  }, [hoveredMonth, getMonthEntries]);
-
   return (
     <main className="max-w-6xl mx-auto px-4 pb-12">
       {viewMode === "month" ? (
@@ -124,7 +99,6 @@ export function ViewContent({
             const isPastYear = selectedYear < new Date().getFullYear();
             const isFutureYear = selectedYear > new Date().getFullYear();
             const monthEntryCount = getMonthEntries(index).length;
-            const isHovered = hoveredMonth === index;
 
             return (
               <Link
@@ -144,30 +118,11 @@ export function ViewContent({
                       : "bg-cream-200 text-brown-700 hover:bg-tan-100"
                   }
                 `}
-                onMouseEnter={() => setHoveredMonth(index)}
-                onMouseLeave={() => setHoveredMonth(null)}
                 data-aos="fade-up"
                 data-aos-delay={`${(index % 4) * 100}`}
               >
-                {/* Hover title display */}
-                {isHovered && displayTitle && (
-                  <div
-                    className={`
-                    absolute inset-x-3 top-2 text-xs truncate px-2 py-1 rounded-full text-center
-                    transition-all duration-300 animate-fade-in
-                    ${
-                      isCurrentMonthCard
-                        ? "bg-tan-400/30 text-cream-200"
-                        : "bg-brown-700/10 text-brown-600"
-                    }
-                  `}
-                  >
-                    {displayTitle}
-                  </div>
-                )}
-
                 {/* Entry count badge */}
-                {monthEntryCount > 0 && !isHovered && (
+                {monthEntryCount > 0 && (
                   <div
                     className={`
                     absolute top-2 left-2 text-xs px-2 py-0.5 rounded-full
