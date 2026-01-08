@@ -134,7 +134,7 @@ export default function Dashboard() {
             <ChevronRightIcon />
           </button>
         </div>
-        <div className="flex gap-2 bg-cream-200 rounded-full p-1">
+        <div className="flex gap-2 bg-cream-200 rounded-full p-1 mt-5 w-fit mx-auto">
           <button
             onClick={() => setViewMode("month")}
             className={`px-3 sm:px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
