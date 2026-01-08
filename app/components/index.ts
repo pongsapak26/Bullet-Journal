@@ -5,3 +5,4 @@ export * from "./BackButton";
 export * from "./LogoutButton";
 export * from "./StatusIcon";
 export { Loading } from "./Loading";
+export { ContentLoading } from "./ContentLoading";
